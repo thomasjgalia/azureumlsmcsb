@@ -10,7 +10,7 @@ import type {
 
 // Helper: Extract code from URL (if code field is a URL)
 function extractCodeFromUrl(codeOrUrl: string): string {
-  if (codeOrUrl && codeOrUrl.startsWith('http')) {
+  if (codeOrUrl && (codeOrUrl.startsWith('http') || codeOrUrl.startsWith('/api/'))) {
     const urlParts = codeOrUrl.split('/');
     return urlParts[urlParts.length - 1];
   }
@@ -176,7 +176,7 @@ export async function getConceptDetails(cui: string, vocabularies?: string[]): P
       let actualCode = atom.code;
       let codeUrl = null;
 
-      if (typeof atom.code === 'string' && atom.code.startsWith('http')) {
+      if (typeof atom.code === 'string' && (atom.code.startsWith('http') || atom.code.startsWith('/api/'))) {
         // Store original URL for reference
         codeUrl = atom.code;
         // Extract the last part of the URL which is usually the code

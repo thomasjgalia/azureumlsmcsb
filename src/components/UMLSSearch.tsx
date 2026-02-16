@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Loader2, GitBranch, CheckCircle2, ChevronDown, ChevronRight, Play, Download } from 'lucide-react';
 import { searchUMLS, enrichSearchResultsWithConceptDetails, getConceptDetails, getAncestors, getDescendants, getRxNormToNDC, getRxNormAttributes, getCUIAncestors } from '../lib/api';
-import { umlsToDisplayName, displayNameToUmls, getMappingByUmls } from '../lib/vocabularyMapping';
+import { umlsToDisplayName, displayNameToUmls } from '../lib/vocabularyMapping';
 import type { UMLSSearchResult } from '../lib/types';
 
 // Vocabularies that support hierarchy navigation
@@ -40,10 +40,6 @@ const ALL_SEARCH_VOCABULARIES = [
   'ICD9PCS',
   'ICD10PCS'
 ];
-
-// Temporary development flag: when true, only include concepts whose rootSource === 'MTH'
-// Set to false to use normal mapped-vocabulary filtering.
-const ONLY_MTH_RESULTS = true;
 
 // Domain to vocabulary mapping (used only for code set building)
 const BUILD_DOMAIN_VOCABULARIES = {
@@ -109,10 +105,6 @@ const getTTYLabel = (tty: string | undefined): string => {
   return TTY_LABELS[tty] || tty;
 };
 
-// Function to filter out results with unmapped vocabularies
-const filterMappedVocabularies = (results: UMLSSearchResult[]): UMLSSearchResult[] => {
-  return results.filter(result => getMappingByUmls(result.rootSource) !== undefined);
-};
 
 // Display labels for build domains
 const BUILD_DOMAIN_CONFIG = {
@@ -519,13 +511,7 @@ export default function UMLSSearch() {
 
       // Enrich results with concept details (semanticTypes, atomCount, status)
       console.log('[SEARCH] Enriching results with concept details...');
-      let enrichedResults = await enrichSearchResultsWithConceptDetails(response.data);
-      // If ONLY_MTH_RESULTS is enabled, limit to MTH rootSource; otherwise apply mapping filter
-      if (ONLY_MTH_RESULTS) {
-        enrichedResults = enrichedResults.filter(r => r.rootSource === 'MTH');
-      } else {
-        enrichedResults = filterMappedVocabularies(enrichedResults);
-      }
+      const enrichedResults = await enrichSearchResultsWithConceptDetails(response.data);
       console.log('[SEARCH] Enriched results:', enrichedResults);
 
       setResults(enrichedResults);
@@ -553,13 +539,7 @@ export default function UMLSSearch() {
           });
 
           // Enrich results with concept details
-          let enrichedResults = await enrichSearchResultsWithConceptDetails(response.data);
-          // If ONLY_MTH_RESULTS is enabled, limit to MTH rootSource; otherwise apply mapping filter
-          if (ONLY_MTH_RESULTS) {
-            enrichedResults = enrichedResults.filter(r => r.rootSource === 'MTH');
-          } else {
-            enrichedResults = filterMappedVocabularies(enrichedResults);
-          }
+          const enrichedResults = await enrichSearchResultsWithConceptDetails(response.data);
 
           setResults(enrichedResults);
           setRawResponse(response);
@@ -726,7 +706,7 @@ export default function UMLSSearch() {
         let descCode = desc.ui || desc.code;
 
         // If the code is a URL, extract the last part
-        if (typeof descCode === 'string' && descCode.startsWith('http')) {
+        if (typeof descCode === 'string' && (descCode.startsWith('http') || descCode.startsWith('/api/'))) {
           const urlParts = descCode.split('/');
           descCode = urlParts[urlParts.length - 1];
         }
