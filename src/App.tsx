@@ -10,7 +10,10 @@ function App() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">UMLS Code Set Builder</h1>
+          <div className="flex items-center gap-3">
+            <img src="/images/turnstone.g.png" alt="Turnstone logo" className="h-10 w-auto" />
+            <h1 className="text-2xl font-bold text-gray-900">UMLS Code Set Builder</h1>
+          </div>
         </div>
       </header>
 
@@ -73,7 +76,7 @@ function App() {
       <footer className="bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <p className="text-center text-sm text-gray-600">
-            Medical Code Set Builder | Powered by The UMLS Metathesaurus
+            Medical Code Set Builder | Powered Turnstone LTD + The UMLS Metathesaurus
           </p>
         </div>
       </footer>
